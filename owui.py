@@ -5,7 +5,7 @@ from ollama import Client
 client = Client(host='http://ollama:11434')
 
 # Use this decorator to define the home page route
-@ui.page('/')
+@ui.page('/owui/')
 def home_page():
     ui.label('Ollama WebUI').classes('text-h4 mb-4')
 
