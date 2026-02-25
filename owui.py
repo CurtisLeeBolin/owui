@@ -1,15 +1,21 @@
-from nicegui import ui
+from nicegui import app, ui
 from ollama import Client
 
-# Connect to your separate Ollama container
+# 1. Ollama Connection
 client = Client(host='http://ollama:11434')
 
-# Use this decorator to define the home page route
-@ui.page('/owui/')
-def home_page():
+# 2. Force the subpath for ALL assets and routes
+# This ensures NiceGUI looks for assets at /owui/_nicegui instead of /_nicegui
+app.root_path = '/owui'
+
+@ui.page('/')
+def owui_page():
+    '''
+    Because app.root_path is set to /owui, this handler
+    automatically serves at http://domain.org
+    '''
     ui.label('Ollama WebUI').classes('text-h4 mb-4')
 
-    # 1. Fetch models
     try:
         response = client.list()
         models = [m['name'] for m in response.get('models', [])]
@@ -17,7 +23,6 @@ def home_page():
         ui.notify(f'Ollama connection failed: {e}', color='negative')
         models = []
 
-    # 2. UI Layout
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         model_select = ui.select(models, label='Select Model').classes('w-full')
         log = ui.log().classes('w-full h-96 border p-4 bg-gray-50')
@@ -31,10 +36,8 @@ def home_page():
             input_field.value = ''
             log.push(f'You: {prompt}')
 
-            full_response = ''
+            full_response = ""
             try:
-                # The ollama client.chat is a blocking generator,
-                # wrapping it in a thread or running it simply:
                 for chunk in client.chat(
                     model=model_select.value,
                     messages=[{'role': 'user', 'content': prompt}],
@@ -50,8 +53,13 @@ def home_page():
         ui.button('Send', on_click=send).classes('w-full mt-2')
 
 def main():
-    # Start the server - it will now correctly find the @ui.page('/') route
-    ui.run(host='0.0.0.0', port=80, title='owui', reload=False)
+    ui.run(
+        host='0.0.0.0',
+        port=80,
+        title='owui',
+        reload=False,
+        storage_secret='owui_secret_key'
+    )
 
 if __name__ in {'__main__', '__mp_main__'}:
     main()
