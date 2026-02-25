@@ -37,7 +37,7 @@ def main():
 
     ui.button('Send', on_click=send)
 
-    ui.run(host='0.0.0.0', port=80, title='owui')
+    ui.run(host='0.0.0.0', port=80, title='owui', reload=False)
 
-if __name__ in {'__main__'}:
+if __name__ in {'__main__', '__mp_main__'}:
     main()
