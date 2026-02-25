@@ -1,49 +1,43 @@
-import streamlit as st
+from ui import ui
 from ollama import Client
 
+client = Client(host='http://ollama:11434')
 
 def main():
-  # 1. Connect to your separate Ollama container
-  client = Client(host='http://ollama:11434')
+    ui.label('Ollama WebUI').classes('text-h4')
 
-  st.title('Ollama WebUI')
+    # Get models
+    try:
+        response = client.list()
+        models = [m['name'] for m in response['models']]
+    except:
+        models = []
 
-  # 2. Fetch pre-installed models for the dropdown
-  try:
-      models_info = client.list()
-      model_names = [m['name'] for m in models_info['models']]
-  except Exception as e:
-      st.error(f'Could not connect to Ollama: {e}')
-      model_names = []
+    # UI Elements
+    model_select = ui.select(models, label='Select Model').classes('w-64')
+    log = ui.log().classes('w-full h-96 border')
+    input_field = ui.input(placeholder='Message...')
 
-  # Sidebar for model selection
-  selected_model = st.sidebar.selectbox('Select Model', model_names)
+    async def send():
+        prompt = input_field.value
+        input_field.value = ''
+        log.push(f'You: {prompt}')
 
-  # Initialize empty chat history
-  if 'messages' not in st.session_state:
-      st.session_state.messages = []
+        # Stream response
+        response_text = ''
+        for chunk in client.chat(
+            model=model_select.value,
+            messages=[{'role': 'user', 'content': prompt}],
+            stream=True
+        ):
+            content = chunk['message']['content']
+            response_text += content
 
-  # Display current chat history (will be empty on first load)
-  for message in st.session_state.messages:
-      with st.chat_message(message['role']):
-          st.markdown(message['content'])
+        log.push(f'AI: {response_text}')
 
-  # 3. Start chatting (no pre-existing prompt)
-  if prompt := st.chat_input('Enter your message...'):
-      st.session_state.messages.append({'role': 'user', 'content': prompt})
-      with st.chat_message('user'):
-          st.markdown(prompt)
+    ui.button('Send', on_click=send)
 
-      with st.chat_message('assistant'):
-          stream = client.chat(
-              model=selected_model,
-              messages=st.session_state.messages,
-              stream=True,
-          )
-          # Writes the response as it streams from the container
-          response = st.write_stream(chunk['message']['content'] for chunk in stream)
-          st.session_state.messages.append({'role': 'assistant', 'content': response})
+    ui.run(host='0.0.0.0', port=80, title='owui')
 
-
-if __name__ == '__main__':
+if __name__ in {'__main__', 'gui'}:
     main()

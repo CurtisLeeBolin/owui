@@ -2,7 +2,7 @@
 name = "owui"
 version = "0.0.1"
 dependencies = [
-    "streamlit",
+    "nicegui",
     "ollama",
 ]
 authors = [
