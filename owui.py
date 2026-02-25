@@ -10,6 +10,7 @@ app.root_path = '/owui'
 
 @ui.page('/')
 def owui_page():
+    ui.dark_mode().enable()
     '''
     Because app.root_path is set to /owui, this handler
     automatically serves at http://domain.org
