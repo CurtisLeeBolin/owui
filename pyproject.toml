@@ -18,4 +18,4 @@ classifiers = [
 "Bug Tracker" = "https://github.com/CurtisLeeBolin/owui/issues"
 
 [project.scripts]
-owui = "app:main"
+owui = "owui:main"
