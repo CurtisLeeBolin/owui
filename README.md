@@ -1,2 +1,2 @@
-# ollama-webui
+# OWUI
 ollama webui
