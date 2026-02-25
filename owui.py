@@ -1,4 +1,4 @@
-from ui import ui
+from nicegui import ui
 from ollama import Client
 
 client = Client(host='http://ollama:11434')
@@ -39,5 +39,5 @@ def main():
 
     ui.run(host='0.0.0.0', port=80, title='owui')
 
-if __name__ in {'__main__', 'gui'}:
+if __name__ in {'__main__'}:
     main()
