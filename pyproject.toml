@@ -1,6 +1,10 @@
 [project]
 name = "owui"
 version = "0.0.1"
+dependencies = [
+    "streamlit",
+    "ollama",
+]
 authors = [
   { name="Curtis Lee Bolin", email="CurtisLeeBolin@gmail.com" },
 ]
