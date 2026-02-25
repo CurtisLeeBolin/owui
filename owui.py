@@ -1,21 +1,18 @@
-from nicegui import app, ui
+from nicegui import ui
 from ollama import Client
 
 # 1. Ollama Connection
 client = Client(host='http://ollama:11434')
 
-# 2. Force the subpath for ALL assets and routes
-# This ensures NiceGUI looks for assets at /owui/_nicegui instead of /_nicegui
-app.root_path = '/owui'
-
+# 2. Define your application at the local root
+# (The 'root_path' in ui.run will shift this to /owui/ automatically)
 @ui.page('/')
 def owui_page():
-    ui.dark_mode().enable()
-    '''
-    Because app.root_path is set to /owui, this handler
-    automatically serves at http://domain.org
-    '''
-    ui.label('Ollama WebUI').classes('text-h4 mb-4')
+    #ui.dark_mode().auto()
+    ui.dark_mode().enable()  # Force dark theme
+
+    with ui.row().classes('w-full items-center mb-4'):
+        ui.label('Ollama WebUI').classes('text-h4')
 
     try:
         response = client.list()
@@ -26,7 +23,7 @@ def owui_page():
 
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         model_select = ui.select(models, label='Select Model').classes('w-full')
-        log = ui.log().classes('w-full h-96 border p-4 bg-gray-50')
+        log = ui.log().classes('w-full h-96 border p-4 bg-gray-900 text-white')
         input_field = ui.input(placeholder='Type a message...').classes('w-full')
 
         async def send():
@@ -54,12 +51,14 @@ def owui_page():
         ui.button('Send', on_click=send).classes('w-full mt-2')
 
 def main():
+    # SETTING ROOT_PATH HERE FIXES THE 404 ON ASSETS
     ui.run(
         host='0.0.0.0',
         port=80,
         title='owui',
         reload=False,
-        storage_secret='owui_secret_key'
+        storage_secret='owui_secret_key_123',
+        root_path='/owui'  # This prefixes ALL internal assets with /owui
     )
 
 if __name__ in {'__main__', '__mp_main__'}:
